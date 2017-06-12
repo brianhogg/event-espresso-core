@@ -626,9 +626,14 @@ final class EE_Capabilities extends EE_Base
      */
     public function init_role_caps($reset = false, $custom_map = array())
     {
+        //if reset, then completely delete the cache option.
+        if ($reset) {
+            delete_option(self::option_name);
+        }
         $caps_map = empty($custom_map) ? $this->_caps_map : $custom_map;
         //first let's determine if these caps have already been set.
-        $caps_set_before = get_option(self::option_name, array());
+        $caps_set_before = $reset ? array() : get_option(self::option_name, array());
+        $update_caps_set_before_option = false;
         //if not reset, see what caps are new for each role. if they're new, add them.
         foreach ($caps_map as $role => $caps_for_role) {
             foreach ($caps_for_role as $cap) {
@@ -636,12 +641,15 @@ final class EE_Capabilities extends EE_Base
                 if ($reset || ! isset($caps_set_before[ $role ]) || ! in_array($cap, $caps_set_before[ $role ])) {
                     if ($this->add_cap_to_role($role, $cap)) {
                         $caps_set_before[ $role ][] = $cap;
+                        $update_caps_set_before_option = true;
                     }
                 }
             }
         }
-        //now let's just save the cap that has been set.
-        update_option(self::option_name, $caps_set_before);
+        //now let's just save the cap that has been set but only if there's been a change.
+        if ($update_caps_set_before_option) {
+            update_option(self::option_name, $caps_set_before);
+        }
         do_action('AHEE__EE_Capabilities__init_role_caps__complete', $caps_set_before);
     }
 
