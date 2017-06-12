@@ -426,10 +426,22 @@ class EE_Payment_Method_Manager
          * their related capability automatically added too, so long as they are
          * registered properly using EE_Register_Payment_Method::register()
          */
-        foreach ($this->payment_method_types() as $payment_method_type_obj) {
-            $caps['administrator'][] = $payment_method_type_obj->cap_name();
+        foreach ($this->payment_method_type_names() as $payment_method_name) {
+            $caps['administrator'][] = $this->capability_slug_for_payment_method_name($payment_method_name);
         }
         return $caps;
+    }
+
+
+    /**
+     * Given a payment method name, this returns the capability slug for that payment method.
+     * @param string $payment_method_name
+     * @since 4.9.41.rc.006
+     * @return string
+     */
+    public function capability_slug_for_payment_method_name($payment_method_name)
+    {
+        return 'ee_payment_method_' . strtolower($payment_method_name);
     }
 
 }

@@ -703,6 +703,11 @@ abstract class EE_PMT_Base{
 	 * @return string
 	 */
 	public function cap_name(){
+	    /** @var EE_Payment_Method_Manager $payment_method_manager */
+	    $payment_method_manager = EE_Registry::instance()->load_lib('Payment_Method_Manager');
+	    if ($payment_method_manager instanceof EE_Payment_Method_Manager) {
+	        return $payment_method_manager->capability_slug_for_payment_method_name($this->system_name());
+        }
 		return 'ee_payment_method_' . strtolower( $this->system_name() );
 	}
 
