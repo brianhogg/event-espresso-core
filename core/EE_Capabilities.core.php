@@ -656,7 +656,9 @@ final class EE_Capabilities extends EE_Base
             )
         );
         $caps = apply_filters('FHEE__EE_Capabilities__init_caps_map__caps', $caps);
-        return $caps;
+        //add payment method caps.
+        EE_Registry::instance()->load_lib('Payment_Method_Manager');
+        return EE_Payment_Method_Manager::instance()->add_payment_method_caps($caps);
     }
 
 
