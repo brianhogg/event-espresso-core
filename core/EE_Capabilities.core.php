@@ -102,9 +102,10 @@ final class EE_Capabilities extends EE_Base
 
     /**
      * This sets the meta caps property.
-     * @since 4.5.0
      *
+     * @since 4.5.0
      * @return void
+     * @throws EE_Error
      */
     private function _set_meta_caps()
     {
@@ -194,7 +195,8 @@ final class EE_Capabilities extends EE_Base
                 ),
                 new EE_Meta_Capability_Map_Read(
                     'ee_read_payment_method',
-                    array('Payment_Method', '', '', 'ee_read_others_payment_methods')),
+                    array('Payment_Method', '', '', 'ee_read_others_payment_methods')
+                ),
 
                 //deletes
                 new EE_Meta_Capability_Map_Delete(
@@ -274,7 +276,7 @@ final class EE_Capabilities extends EE_Base
                     continue;
                 }
                 // don't load models if there is no object ID in the args
-                if(!empty($args[0])){
+                if (! empty($args[0])) {
                     $meta_map->ensure_is_model();
                 }
                 $caps = $meta_map->map_meta_caps($caps, $cap, $user_id, $args);
@@ -287,8 +289,7 @@ final class EE_Capabilities extends EE_Base
     /**
      * This sets up and returns the initial capabilities map for Event Espresso
      *
-     * @since 4.5.0
-     *
+     * @since   4.5.0
      * @return array
      */
     private function _init_caps_map()
@@ -722,8 +723,13 @@ final class EE_Capabilities extends EE_Base
     {
         //apply filters (both a global on just the cap, and context specific.  Global overrides context specific)
         $filtered_cap = apply_filters('FHEE__EE_Capabilities__current_user_can__cap__' . $context, $cap, $id);
-        $filtered_cap = apply_filters('FHEE__EE_Capabilities__current_user_can__cap', $filtered_cap, $context, $cap,
-            $id);
+        $filtered_cap = apply_filters(
+            'FHEE__EE_Capabilities__current_user_can__cap',
+            $filtered_cap,
+            $context,
+            $cap,
+            $id
+        );
         return ! empty($id) ? current_user_can($filtered_cap, $id) : current_user_can($filtered_cap);
     }
 
@@ -743,8 +749,14 @@ final class EE_Capabilities extends EE_Base
     {
         //apply filters (both a global on just the cap, and context specific.  Global overrides context specific)
         $filtered_cap = apply_filters('FHEE__EE_Capabilities__user_can__cap__' . $context, $cap, $user, $id);
-        $filtered_cap = apply_filters('FHEE__EE_Capabilities__user_can__cap', $filtered_cap, $context, $cap, $user,
-            $id);
+        $filtered_cap = apply_filters(
+            'FHEE__EE_Capabilities__user_can__cap',
+            $filtered_cap,
+            $context,
+            $cap,
+            $user,
+            $id
+        );
         return ! empty($id) ? user_can($user, $filtered_cap, $id) : user_can($user, $filtered_cap);
     }
 
@@ -871,7 +883,7 @@ abstract class EE_Meta_Capability_Map
         if (count($map_values) !== 4) {
             throw new EE_Error(
                 sprintf(
-                    __(
+                    esc_html__(
                         'Incoming $map_values array should have a count of four values in it.  This is what was given: %s',
                         'event_espresso'
                     ),
@@ -918,7 +930,7 @@ abstract class EE_Meta_Capability_Map
         if (! $this->_model instanceof EEM_Base) {
             throw new EE_Error(
                 sprintf(
-                    __(
+                    esc_html__(
                         'This string passed in to %s to represent a EEM_Base model class was not able to be used to instantiate the class.   Please ensure that the string is a match for the EEM_Base model name (not including the EEM_ part). This was given: %s',
                         'event_espresso'
                     ),
@@ -1155,7 +1167,9 @@ class EE_Meta_Capability_Map_Read extends EE_Meta_Capability_Map
             //not a cpt object so handled differently
             $has_cap = false;
             try {
-                $has_cap = method_exists($obj, 'wp_user') && $obj->wp_user() && $obj->wp_user() === $user_id;
+                $has_cap = method_exists($obj, 'wp_user')
+                           && $obj->wp_user()
+                           && $obj->wp_user() === $user_id;
             } catch (Exception $e) {
                 if (WP_DEBUG) {
                     EE_Error::add_error($e->getMessage(), __FILE__, __FUNCTION__, __LINE__);
