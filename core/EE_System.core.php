@@ -149,8 +149,8 @@ final class EE_System
         do_action('AHEE__EE_System__construct__begin', $this);
         // allow addons to load first so that they can register autoloaders, set hooks for running DMS's, etc
         add_action('AHEE__EE_Bootstrap__load_espresso_addons', array($this, 'load_espresso_addons'));
-        // when an ee addon is activated, we want to call the core hook(s) again
-        // because the newly-activated addon didn't get a chance to run at all
+        // right before the plugin is saved to the active_plugins option, we want to call the core hook(s) again
+        // because the newly-activated addon has not executed yet.
         add_action('activate_plugin', array($this, 'load_espresso_addons'), 1);
         // detect whether install or upgrade
         add_action('AHEE__EE_Bootstrap__detect_activations_or_upgrades', array($this, 'detect_activations_or_upgrades'),
