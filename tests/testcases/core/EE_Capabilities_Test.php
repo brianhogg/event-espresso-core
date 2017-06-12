@@ -42,7 +42,8 @@ class EE_Capabilities_Test extends EE_UnitTestCase
         $caps = EE_Registry::instance()->CAP->get_ee_capabilities('no_exist');
         $this->assertEmpty($caps);
     }
-    
+
+
     public function test_add_new_capabilities()
     {
         global $wp_roles;
@@ -55,10 +56,20 @@ class EE_Capabilities_Test extends EE_UnitTestCase
         //add a new cap
         add_filter('FHEE__EE_Capabilities__init_caps_map__caps', array($this, 'add_new_caps'));
         EE_Registry::instance()->CAP->init_caps();
+        //it should be in the init_caps_map
         //check it got added
         $this->assertArrayContains('ee_new_cap', EE_Registry::instance()->CAP->get_ee_capabilities('administrator'));
+        //it should not have been added  to the user role because by default initialization can only happen
+        // once per request.
+        $user->add_role('administrator');
+        $this->assertFalse(EE_Registry::instance()->CAP->user_can($user, 'ee_new_cap', 'test'));
+
+        //so we have to call init_caps(true) to force adding the cap.
+        EE_Registry::instance()->CAP->init_caps(true);
+        //we have to re-add the role to the user because WP caches roles/capabilities on loaded users.
         $user->add_role('administrator');
         $this->assertTrue(EE_Registry::instance()->CAP->user_can($user, 'ee_new_cap', 'test'));
+
         //then check newly-created users get that new role
         //refresh the roles' caps and the user object
         $wp_roles       = new WP_Roles();

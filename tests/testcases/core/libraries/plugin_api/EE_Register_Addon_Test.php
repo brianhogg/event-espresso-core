@@ -150,7 +150,6 @@ class EE_Register_Addon_Test extends EE_UnitTestCase
     }
 
 
-
     public function test_register_mock_addon_success()
     {
         //ensure model and class extensions weren't setup beforehand
@@ -172,6 +171,8 @@ class EE_Register_Addon_Test extends EE_UnitTestCase
         $this->assertArrayHasKey('EE_DMS_New_Addon_1_0_0', $DMSs_available);
         //and check the deactivation hook was setup properly
         $this->assertTrue(has_action('deactivate_' . EE_Registry::instance()->addons->EE_New_Addon->get_main_plugin_file_basename()));
+        //check that the caps maps were registered properly too
+        $this->_pretend_capabilities_registered();
         //check that the model was registered properly
         EE_System::instance()->load_core_configuration();
         $this->assertArrayContains('EEM_New_Addon_Thing', EE_Registry::instance()->non_abstract_db_models);
@@ -185,8 +186,7 @@ class EE_Register_Addon_Test extends EE_UnitTestCase
         //check that the model extension was registered properly
         $this->assertTrue($this->_class_has_been_extended(true));
         $this->assertTrue($this->_model_has_been_extended(true));
-        //check that the caps maps were registered properly too
-        $this->_pretend_capabilities_registered();
+
         $current_user = $this->factory->user->create_and_get();
         $other_user = $this->factory->user->create_and_get();
         //give user administrator role for test!
@@ -208,7 +208,9 @@ class EE_Register_Addon_Test extends EE_UnitTestCase
     private function _pretend_capabilities_registered()
     {
         EE_Registry::instance()->load_core('Capabilities');
-        EE_Capabilities::instance()->init_caps();
+        //we send in true for the reset argument because EE_Capabilities only allows Capabilities to be initialized once and its
+        //already been initialized in this request.
+        EE_Capabilities::instance()->init_caps(true);
         //validate caps were registered and init saved.
         $admin_caps_init = EE_Capabilities::instance()->get_ee_capabilities('administrator');
         $this->assertArrayContains('edit_thing', $admin_caps_init);
@@ -216,7 +218,8 @@ class EE_Register_Addon_Test extends EE_UnitTestCase
         $role = get_role('administrator');
         $this->assertContains(
             array('edit_thing', 'edit_things', 'edit_others_things', 'edit_private_things'),
-            $role->capabilities);
+            $role->capabilities
+        );
     }
 
     /**

@@ -14,6 +14,7 @@
  * @since 		4.5.0
  * @package 		Event Espresso
  * @subpackage 	tests
+ * @group caps
  */
 class EE_Register_Capabilities_Test extends EE_UnitTestCase {
 
@@ -95,7 +96,9 @@ class EE_Register_Capabilities_Test extends EE_UnitTestCase {
 		$this->_add_test_helper_filters();
 
 		EE_Registry::instance()->load_core( 'Capabilities' );
-		EE_Capabilities::instance()->init_caps();
+		//we send in true for the reset argument because EE_Capabilities only allows Capabilities to be initialized once and its
+        //already been initialized in this request.
+		EE_Capabilities::instance()->init_caps(true);
 
 		//remove filters that were added to prevent pollution in other tests
 		$this->_remove_test_helper_filters();
