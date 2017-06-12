@@ -1,7 +1,7 @@
 <?php
 defined('EVENT_ESPRESSO_VERSION') || exit('No direct script access allowed');
 
-
+use EventEspresso\core\exceptions\InvalidExecutionPathException;
 
 /**
  * This class contains all the code related to Event Espresso capabilities.
@@ -51,6 +51,15 @@ final class EE_Capabilities extends EE_Base
 
 
     /**
+     * Used to track whether the capabilities have been initialized or not in this request.
+     * @var bool
+     */
+    private $_has_been_initialized = false;
+
+
+
+
+    /**
      * singleton method used to instantiate class object
      *
      * @since 4.5.0
@@ -85,18 +94,59 @@ final class EE_Capabilities extends EE_Base
      * @param bool $reset allows for resetting the default capabilities saved on roles.  Note that this doesn't
      *                    actually REMOVE any capabilities from existing roles, it just resaves defaults roles and
      *                    ensures that they are up to date.
-     *
-     *
-     * @since 4.5.0
      * @return void
+     * @throws EE_Error
+     * @throws InvalidExecutionPathException
+     * @since 4.5.0
      */
     public function init_caps($reset = false)
     {
-        if (EE_Maintenance_Mode::instance()->models_can_query()) {
+        if (EE_Maintenance_Mode::instance()->models_can_query()
+            && ! $this->has_been_initialized($reset)
+        ) {
+            do_action('AHEE__EE_Capabilities__init_caps__before_init_cap_logic_call', $this, $reset);
+            $this->init_cap_logic($reset);
+        }
+    }
+
+
+    /**
+     * Executes the logic for initializing EE capabilities.
+     * It is preferable to go through `init_caps` and this should not be called directly it's only public because of
+     * that being a requirement of being a callback on a WordPress hook.
+     *
+     * @param bool $reset
+     * @throws EE_Error
+     * @throws InvalidExecutionPathException
+     * @since 4.9.41.rc.006
+     */
+    public function init_cap_logic($reset = false)
+    {
+        if (! did_action('AHEE__EE_Capabilities__init_caps__before_init_cap_logic_call')) {
+            throw new InvalidExecutionPathException(
+                esc_html__(
+                    '%1$s should not be called before the %2$s hook has fired.  It is recommended to instead use %s',
+                    'event_espresso'
+                )
+            );
+        }
+        if (! $this->has_been_initialized($reset)) {
             $this->_caps_map = $this->_init_caps_map();
             $this->init_role_caps($reset);
             $this->_set_meta_caps();
+            $this->_has_been_initialized = true;
         }
+    }
+
+
+    /**
+     * Returns whether EE_Capabilities have been initialized or not.
+     * @param bool $reset
+     * @return bool
+     */
+    public function has_been_initialized($reset = false)
+    {
+        return ! $reset ? $this->_has_been_initialized : false;
     }
 
 
