@@ -10,9 +10,10 @@ do_action( 'add_meta_boxes', $post_type, $post );
 <div id="admin-page-header">
     <?php echo $admin_page_header; ?>
 </div>
+<!-- admin-page-header -->
 <?php endif; ?>
 <div id="<?php echo $admin_page_wrapper_div_id; ?>">
-		<!-- admin-page-header -->
+
 	<div id="post-body" class="metabox-holder columns-2">
 
 	<?php if ( ! empty( $post_body_content )) : ?>
