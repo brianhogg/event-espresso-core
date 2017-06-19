@@ -12,7 +12,8 @@ do_action( 'add_meta_boxes', $post_type, $post );
 </div>
 <!-- admin-page-header -->
 <?php endif; ?>
-<div id="<?php echo $admin_page_wrapper_div_id; ?>">
+<div id="poststuff">
+<div id="espresso-default-admin">
 
 	<div id="post-body" class="metabox-holder columns-2">
 
@@ -38,4 +39,6 @@ do_action( 'add_meta_boxes', $post_type, $post );
 	</div>
 	<!-- post-body -->
 </div>
-<!-- <?php echo $admin_page_wrapper_div_id; ?> -->
+<!-- espresso-default-admin -->
+</div>
+<!-- poststuff -->

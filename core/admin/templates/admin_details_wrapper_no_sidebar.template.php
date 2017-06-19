@@ -4,7 +4,8 @@
 /** @var string|WP_Screen $current_page */
 ?>
 
-<div id="<?php echo $admin_page_wrapper_div_id; ?>">
+<div id="poststuff">
+<div id="espresso-default-admin">
     <div id="post-body" class="metabox-holder columns-1">
 
         <?php if ( ! empty($admin_page_header)) : ?>
@@ -30,4 +31,6 @@
     </div>
     <!-- post-body -->
 </div>
-<!-- <?php echo $admin_page_wrapper_div_id; ?> -->
+<!-- espresso-default-admin -->
+</div>
+<!-- poststuff -->
