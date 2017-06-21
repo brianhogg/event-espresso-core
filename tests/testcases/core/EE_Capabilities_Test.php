@@ -272,6 +272,18 @@ class EE_Capabilities_Test extends EE_UnitTestCase
             $administrator_role->has_cap($mock_onsite_capability),
             'The admin user should have the "' . $mock_onsite_capability . '" capability!'
         );
+        // you would think that users would instantly inherit caps from their roles
+        $this->assertFalse(
+            $this->CAPS->user_can($user, $mock_onsite_capability, 'test'),
+            'The admin user should have the "' . $mock_onsite_capability . '" capability!'
+        );
+        // but it appears caps are added when the role is assigned
+        // that's really clever WordPress </sarcasm> what's the point of having roles then?
+        $user->remove_role(self::ADMINISTRATOR_ROLE);
+        // verify that no other roles exist that could be granting caps
+        $this->assertEmpty($user->roles);
+        // now make this user an administrator
+        $user->add_role(self::ADMINISTRATOR_ROLE);
         // then verify the user also has the cap
         $this->assertTrue(
             $this->CAPS->user_can($user, $mock_onsite_capability, 'test'),
